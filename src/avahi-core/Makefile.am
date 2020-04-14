@@ -16,13 +16,15 @@
 # USA.
 
 AM_CFLAGS=-I$(top_srcdir)
+AM_CFLAGS+=-I$(top_srcdir)/src
+AM_CFLAGS+=-I..
 
 # This cool debug trap works on i386/gcc only
 AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")'
 
-avahiincludedir=$(includedir)/avahi-core
+avahi_coreincludedir=$(includedir)/avahi-core
 
-avahiinclude_HEADERS = \
+avahi_coreinclude_HEADERS = \
 	core.h \
 	log.h \
 	rr.h \
@@ -99,7 +101,7 @@ libavahi_core_la_SOURCES += \
 endif
 endif
 
-libavahi_core_la_CFLAGS = $(AM_CFLAGS)
+libavahi_core_la_CFLAGS = $(AM_CFLAGS) $(PTHREAD_CFLAGS) -DAVAHI_LOCALEDIR=\"$(avahilocaledir)\"
 libavahi_core_la_LIBADD = $(AM_LDADD) ../avahi-common/libavahi-common.la
 libavahi_core_la_LDFLAGS = $(AM_LDFLAGS)  -version-info $(LIBAVAHI_CORE_VERSION_INFO)
 
