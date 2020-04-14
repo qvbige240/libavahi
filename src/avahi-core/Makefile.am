@@ -17,7 +17,7 @@
 
 AM_CFLAGS=-I$(top_srcdir)
 AM_CFLAGS+=-I$(top_srcdir)/src
-AM_CFLAGS+=-I..
+#AM_CFLAGS+=-I..
 
 # This cool debug trap works on i386/gcc only
 AM_CFLAGS+='-DDEBUG_TRAP=__asm__("int $$3")'

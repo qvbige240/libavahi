@@ -279,5 +279,6 @@ AC_CHECK_FUNCS([gethostname gettimeofday memchr memset select socket strcasecmp 
 AC_CONFIG_FILES([Makefile
                  src/Makefile
                  src/avahi-common/Makefile
-                 src/avahi-core/Makefile])
+                 src/avahi-core/Makefile
+                 src/examples/Makefile])
 AC_OUTPUT

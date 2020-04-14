@@ -16,6 +16,8 @@
 # USA.
 
 AM_CFLAGS=-I$(top_srcdir)
+AM_CFLAGS+=-I$(top_srcdir)/src
+
 
 if ENABLE_TESTS
 noinst_PROGRAMS = \
@@ -47,7 +49,7 @@ client_browse_services_SOURCES = client-browse-services.c
 client_browse_services_CFLAGS = $(AM_CFLAGS)
 client_browse_services_LDADD = $(AM_LDADD) ../avahi-client/libavahi-client.la ../avahi-common/libavahi-common.la
 
-if HAVE_GLIB
+if HAVE_DBUS
 
 if ENABLE_TESTS
 noinst_PROGRAMS += \
