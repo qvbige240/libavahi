@@ -254,7 +254,31 @@ AM_CONDITIONAL(X86_UBUNTU, test x$PF_TARGET = xX86_UBUNTU)
 AM_CONDITIONAL(X86_CENTOS, test x$PF_TARGET = xX86_CENTOS)
 AM_CONDITIONAL(MIPS_NT966X, test x${PF_TARGET} = xMIPS_NT966X)
 
+#
+# Check for netlink.h
+#
+AC_CHECK_HEADER(linux/netlink.h,
+HAVE_NETLINK=yes
+AC_DEFINE([HAVE_NETLINK],[],[Support for Linux netlink])
+, [], [
+#include <sys/socket.h>
+#include <asm/types.h>
+])
+
 AM_CONDITIONAL(HAVE_NETLINK, [ test x"$HAVE_NETLINK" = xyes ])
+
+#
+# Check for net/route.h
+#
+AC_CHECK_HEADER(net/route.h,
+HAVE_PF_ROUTE=yes
+AC_DEFINE([HAVE_PF_ROUTE],[],[Support for PF_ROUTE])
+, [], [
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <net/if_dl.h>
+])
+
 AM_CONDITIONAL(HAVE_PF_ROUTE, [ test x"$HAVE_PF_ROUTE" = xyes ])
 AM_CONDITIONAL(HAVE_DBUS, test "x$HAVE_DBUS" = "xyes")
 
@@ -267,6 +291,7 @@ AC_TYPE_SSIZE_T
 AC_TYPE_UINT16_T
 AC_TYPE_UINT32_T
 AC_TYPE_UINT8_T
+AC_TYPE_PID_T
 
 # Checks for library functions.
 AC_FUNC_ERROR_AT_LINE
