@@ -1085,7 +1085,7 @@ static void server_set_state(AvahiServer *s, AvahiServerState state) {
     avahi_interface_monitor_update_rrs(s->monitor, 0);
 
     if (s->callback)
-        s->callback(s, state, s->userdata);
+        s->callback(s, state, 0, s->userdata);
 }
 
 static void withdraw_host_rrs(AvahiServer *s) {

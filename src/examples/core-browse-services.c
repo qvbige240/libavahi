@@ -92,6 +92,7 @@ static void resolve_callback(
                     !!(flags & AVAHI_LOOKUP_RESULT_WIDE_AREA),
                     !!(flags & AVAHI_LOOKUP_RESULT_MULTICAST),
                     !!(flags & AVAHI_LOOKUP_RESULT_CACHED));
+            printf("+++++  Service '%s' '%s' %s %u ( ip %s )  +++++\n", name, type, domain, port, a);
             avahi_free(t);
         }
     }
@@ -168,11 +169,13 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char*argv[]) {
     config.publish_addresses = 0;
     config.publish_workstation = 0;
     config.publish_domain = 0;
+    config.host_name = avahi_strdup("kingbrowser");
+    config.use_ipv4 = 1;
 
     /* Set a unicast DNS server for wide area DNS-SD */
-    avahi_address_parse("192.168.50.1", AVAHI_PROTO_UNSPEC, &config.wide_area_servers[0]);
-    config.n_wide_area_servers = 1;
-    config.enable_wide_area = 1;
+    // avahi_address_parse("192.168.50.1", AVAHI_PROTO_UNSPEC, &config.wide_area_servers[0]);
+    // config.n_wide_area_servers = 1;
+    // config.enable_wide_area = 1;
 
     /* Allocate a new server */
     server = avahi_server_new(avahi_simple_poll_get(simple_poll), &config, NULL, NULL, &error);
@@ -187,7 +190,7 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char*argv[]) {
     }
 
     /* Create the service browser */
-    if (!(sb = avahi_s_service_browser_new(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, "_http._tcp", NULL, 0, browse_callback, server))) {
+    if (!(sb = avahi_s_service_browser_new(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, "_kingserver._tcp", NULL, 0, browse_callback, server))) {
         fprintf(stderr, "Failed to create service browser: %s\n", avahi_strerror(avahi_server_errno(server)));
         goto fail;
     }

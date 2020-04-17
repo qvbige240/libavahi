@@ -319,6 +319,16 @@ static void netlink_callback(AvahiNetlink *nl, struct nlmsghdr *n, void* userdat
 
             /* Tell the user that the wild dump is complete */
             avahi_log_info("Network interface enumeration completed.");
+
+            {
+                AvahiServer *s = m->server;
+                assert(s);
+
+                if (s && s->callback)
+                {
+                    s->callback(s, AVAHI_SERVER_IPV4_DONE, 0, s->userdata);
+                }
+            }
         }
 
     } else if (n->nlmsg_type == NLMSG_ERROR &&

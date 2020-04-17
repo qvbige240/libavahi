@@ -176,12 +176,18 @@ static int interface_mdns_mcast_join(AvahiInterface *i, int join) {
     int r;
     assert(i);
 
-    if (!!join  == !!i->mcast_joined)
+    if (!!join == !!i->mcast_joined)
+    {
+        avahi_log_info("interface_mdns_mcast_join no mcast_joined\n");
         return 0;
+    }
 
-    if ((i->protocol == AVAHI_PROTO_INET6 && i->monitor->server->fd_ipv6 < 0) ||
-        (i->protocol == AVAHI_PROTO_INET && i->monitor->server->fd_ipv4 < 0))
+    if ((i->protocol == AVAHI_PROTO_INET6 && i->monitor->server->fd_ipv6 < 0) || (i->protocol == AVAHI_PROTO_INET && i->monitor->server->fd_ipv4 < 0))
+    {
+        avahi_log_info("interface_mdns_mcast_join protocol=%d fd_ipv6=%d fd_ipv4=%d\n", i->protocol,
+                       i->monitor->server->fd_ipv6, i->monitor->server->fd_ipv4);
         return -1;
+    }
 
     if (join) {
         AvahiInterfaceAddress *a;
@@ -198,7 +204,10 @@ static int interface_mdns_mcast_join(AvahiInterface *i, int join) {
 
         /* Hmm, there is no address available. */
         if (!a)
+        {
+            avahi_log_info("there is no address available\n");
             return -1;
+        }
 
         i->local_mcast_address = a->address;
     }
@@ -432,25 +441,45 @@ AvahiInterfaceAddress *avahi_interface_address_new(AvahiInterfaceMonitor *m, Ava
 void avahi_interface_check_relevant(AvahiInterface *i) {
     int b;
     AvahiInterfaceMonitor *m;
+    AvahiServer *s;
 
     assert(i);
     m = i->monitor;
+
+    assert(m);
+    s = m->server;
+    assert(s);
 
     b = avahi_interface_is_relevant(i);
 
     if (m->list_complete && b && !i->announcing) {
         interface_mdns_mcast_join(i, 1);
 
-        if (i->mcast_joined) {
+        if (i->mcast_joined)
+        {
+            char at[AVAHI_ADDRESS_STR_MAX];
             avahi_log_info("New relevant interface %s.%s for mDNS.", i->hardware->name, avahi_proto_to_string(i->protocol));
+            avahi_log_info("[ssdp] interface %s %s valid, network is opened!", i->hardware->name, avahi_address_snprint(at, sizeof(at), &i->local_mcast_address));
+            if (s->callback)
+            {
+                s->callback(s, AVAHI_SERVER_IPV4_NEW, (void *)at, s->userdata);
+            }
 
             i->announcing = 1;
             avahi_announce_interface(m->server, i);
             avahi_multicast_lookup_engine_new_interface(m->server->multicast_lookup_engine, i);
         }
-
-    } else if (!b && i->announcing) {
+    }
+    else if (!b && i->announcing)
+    {
+        char at[AVAHI_ADDRESS_STR_MAX];
         avahi_log_info("Interface %s.%s no longer relevant for mDNS.", i->hardware->name, avahi_proto_to_string(i->protocol));
+        avahi_log_info("[ssdp]IP=%s valid, network is closed!", avahi_address_snprint(at, sizeof(at), &i->local_mcast_address));
+
+        if (s->callback)
+        {
+            s->callback(s, AVAHI_SERVER_IPV4_DELETE, (void *)at, s->userdata);
+        }
 
         interface_mdns_mcast_join(i, 0);
 
@@ -500,7 +529,10 @@ AvahiInterfaceMonitor *avahi_interface_monitor_new(AvahiServer *s) {
     AVAHI_LLIST_HEAD_INIT(AvahiHwInterface, m->hw_interfaces);
 
     if (avahi_interface_monitor_init_osdep(m) < 0)
+    {
+        avahi_log_info("interface_monitor_init_osdep < 0\n");
         goto fail;
+    }
 
     return m;
 
@@ -582,9 +614,8 @@ void avahi_interface_send_packet_unicast(AvahiInterface *i, AvahiDnsPacket *p, c
         end = i->hardware->ratelimit_begin;
         avahi_timeval_add(&end, i->monitor->server->config.ratelimit_interval);
 
-        if (i->hardware->ratelimit_begin.tv_sec <= 0 ||
-            avahi_timeval_compare(&end, &now) < 0) {
-
+        if (i->hardware->ratelimit_begin.tv_sec <= 0 || avahi_timeval_compare(&end, &now) < 0)
+        {
             i->hardware->ratelimit_begin = now;
             i->hardware->ratelimit_counter = 0;
         }

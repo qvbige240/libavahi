@@ -38,7 +38,8 @@ AVAHI_C_DECL_BEGIN
 #define AVAHI_WIDE_AREA_SERVERS_MAX 4
 
 /** Prototype for callback functions which are called whenever the state of an AvahiServer object changes */
-typedef void (*AvahiServerCallback) (AvahiServer *s, AvahiServerState state, void* userdata);
+//typedef void (*AvahiServerCallback) (AvahiServer *s, AvahiServerState state, void* userdata);
+typedef void (*AvahiServerCallback)(AvahiServer *s, AvahiServerState state, void *param, void *userdata);
 
 /** Stores configuration options for a server instance */
 typedef struct AvahiServerConfig {

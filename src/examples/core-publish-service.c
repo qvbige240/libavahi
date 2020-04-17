@@ -100,22 +100,27 @@ static void create_services(AvahiServer *s) {
     snprintf(r, sizeof(r), "random=%i", rand());
 
     /* Add the service for IPP */
-    if ((ret = avahi_server_add_service(s, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, name, "_ipp._tcp", NULL, NULL, 651, "test=blah", r, NULL)) < 0) {
+    if ((ret = avahi_server_add_service(s, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, name, "_kingserver._tcp", NULL, NULL, 651, "test=king", r, NULL)) < 0) {
         fprintf(stderr, "Failed to add _ipp._tcp service: %s\n", avahi_strerror(ret));
         goto fail;
     }
+    // /* Add the service for IPP */
+    // if ((ret = avahi_server_add_service(s, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, name, "_ipp._tcp", NULL, NULL, 651, "test=blah", r, NULL)) < 0) {
+    //     fprintf(stderr, "Failed to add _ipp._tcp service: %s\n", avahi_strerror(ret));
+    //     goto fail;
+    // }
 
-    /* Add the same service for BSD LPR */
-    if ((ret = avahi_server_add_service(s, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, name, "_printer._tcp", NULL, NULL, 515, NULL)) < 0) {
-        fprintf(stderr, "Failed to add _printer._tcp service: %s\n", avahi_strerror(ret));
-        goto fail;
-    }
+    // /* Add the same service for BSD LPR */
+    // if ((ret = avahi_server_add_service(s, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, name, "_printer._tcp", NULL, NULL, 515, NULL)) < 0) {
+    //     fprintf(stderr, "Failed to add _printer._tcp service: %s\n", avahi_strerror(ret));
+    //     goto fail;
+    // }
 
-    /* Add an additional (hypothetic) subtype */
-    if ((ret = avahi_server_add_service_subtype(s, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, name, "_printer._tcp", NULL, "_magic._sub._printer._tcp") < 0)) {
-        fprintf(stderr, "Failed to add subtype _magic._sub._printer._tcp: %s\n", avahi_strerror(ret));
-        goto fail;
-    }
+    // /* Add an additional (hypothetic) subtype */
+    // if ((ret = avahi_server_add_service_subtype(s, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, name, "_printer._tcp", NULL, "_magic._sub._printer._tcp") < 0)) {
+    //     fprintf(stderr, "Failed to add subtype _magic._sub._printer._tcp: %s\n", avahi_strerror(ret));
+    //     goto fail;
+    // }
 
     /* Tell the server to register the service */
     if ((ret = avahi_s_entry_group_commit(group)) < 0) {
@@ -129,11 +134,12 @@ fail:
     avahi_simple_poll_quit(simple_poll);
 }
 
-static void server_callback(AvahiServer *s, AvahiServerState state, AVAHI_GCC_UNUSED void * userdata) {
+static void server_callback(AvahiServer *s, AvahiServerState state, void *param, AVAHI_GCC_UNUSED void *userdata)
+{
     assert(s);
 
     /* Called whenever the server state changes */
-
+    //avahi_log_debug("server_callback state=%d, group = %d\n", state, group);
     switch (state) {
 
         case AVAHI_SERVER_RUNNING:
@@ -186,6 +192,15 @@ static void server_callback(AvahiServer *s, AvahiServerState state, AVAHI_GCC_UN
 
         case AVAHI_SERVER_INVALID:
             ;
+        case AVAHI_SERVER_IPV4_NEW:
+            fprintf(stderr, "Service: AVAHI_SERVER_IPV4_NEW on ip '%s'\n", (char *)param);
+            break;
+        case AVAHI_SERVER_IPV4_DELETE:
+            fprintf(stderr, "Service: AVAHI_SERVER_IPV4_DELETE on ip '%s'\n", (char *)param);
+            break;
+        case AVAHI_SERVER_IPV4_DONE:
+            fprintf(stderr, "Service: AVAHI_SERVER_IPV4_DONE\n");
+            break;
     }
 }
 
@@ -204,11 +219,11 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char*argv[]) {
         goto fail;
     }
 
-    name = avahi_strdup("MegaPrinter");
+    name = avahi_strdup("King");
 
     /* Let's set the host name for this server. */
     avahi_server_config_init(&config);
-    config.host_name = avahi_strdup("gurkiman");
+    config.host_name = avahi_strdup("King");
     config.publish_workstation = 0;
 
     /* Allocate a new server */
