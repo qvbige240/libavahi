@@ -1575,7 +1575,7 @@ AvahiServerConfig* avahi_server_config_init(AvahiServerConfig *c) {
     assert(c);
 
     memset(c, 0, sizeof(AvahiServerConfig));
-    c->use_ipv6 = 1;
+    c->use_ipv6 = 0;
     c->use_ipv4 = 1;
     c->allow_interfaces = NULL;
     c->deny_interfaces = NULL;

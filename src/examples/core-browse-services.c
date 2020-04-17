@@ -132,7 +132,7 @@ static void browse_callback(
                the callback function is called the server will free
                the resolver for us. */
 
-            if (!(avahi_s_service_resolver_new(s, interface, protocol, name, type, domain, AVAHI_PROTO_UNSPEC, 0, resolve_callback, s)))
+            if (!(avahi_s_service_resolver_new(s, interface, protocol, name, type, domain, AVAHI_PROTO_INET, 0, resolve_callback, s)))
                 fprintf(stderr, "Failed to resolve service '%s': %s\n", name, avahi_strerror(avahi_server_errno(s)));
 
             break;
@@ -190,7 +190,7 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char*argv[]) {
     }
 
     /* Create the service browser */
-    if (!(sb = avahi_s_service_browser_new(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, "_kingserver._tcp", NULL, 0, browse_callback, server))) {
+    if (!(sb = avahi_s_service_browser_new(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_INET, "_kingserver._tcp", NULL, 0, browse_callback, server))) {
         fprintf(stderr, "Failed to create service browser: %s\n", avahi_strerror(avahi_server_errno(server)));
         goto fail;
     }

@@ -100,7 +100,7 @@ static void create_services(AvahiServer *s) {
     snprintf(r, sizeof(r), "random=%i", rand());
 
     /* Add the service for IPP */
-    if ((ret = avahi_server_add_service(s, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, name, "_kingserver._tcp", NULL, NULL, 651, "test=king", r, NULL)) < 0) {
+    if ((ret = avahi_server_add_service(s, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_INET, 0, name, "_kingserver._tcp", NULL, NULL, 651, "test=king", r, NULL)) < 0) {
         fprintf(stderr, "Failed to add _ipp._tcp service: %s\n", avahi_strerror(ret));
         goto fail;
     }
