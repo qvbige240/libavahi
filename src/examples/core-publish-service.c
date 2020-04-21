@@ -36,6 +36,7 @@
 static AvahiSEntryGroup *group = NULL;
 static AvahiSimplePoll *simple_poll = NULL;
 static char *name = NULL;
+static char *type = NULL;
 
 static void create_services(AvahiServer *s);
 
@@ -50,7 +51,7 @@ static void entry_group_callback(AvahiServer *s, AvahiSEntryGroup *g, AvahiEntry
         case AVAHI_ENTRY_GROUP_ESTABLISHED:
 
             /* The entry group has been established successfully */
-            fprintf(stderr, "Service '%s' successfully established.\n", name);
+            fprintf(stderr, "Service '%s' '%s' successfully established.\n", name, type);
             break;
 
         case AVAHI_ENTRY_GROUP_COLLISION: {
@@ -100,7 +101,7 @@ static void create_services(AvahiServer *s) {
     snprintf(r, sizeof(r), "random=%i", rand());
 
     /* Add the service for IPP */
-    if ((ret = avahi_server_add_service(s, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_INET, 0, name, "_kingserver._tcp", NULL, NULL, 651, "test=king", r, NULL)) < 0) {
+    if ((ret = avahi_server_add_service(s, group, AVAHI_IF_UNSPEC, AVAHI_PROTO_INET, 0, name, type, NULL, NULL, 651, "test=king", r, NULL)) < 0) {
         fprintf(stderr, "Failed to add _ipp._tcp service: %s\n", avahi_strerror(ret));
         goto fail;
     }
@@ -220,6 +221,10 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char*argv[]) {
     }
 
     name = avahi_strdup("King");
+    if (argc > 1)
+        type = avahi_strdup(argv[1]);
+    else
+        type = avahi_strdup("_kingserver._tcp");
 
     /* Let's set the host name for this server. */
     avahi_server_config_init(&config);
@@ -254,6 +259,7 @@ fail:
         avahi_simple_poll_free(simple_poll);
 
     avahi_free(name);
+    avahi_free(type);
 
     return ret;
 }

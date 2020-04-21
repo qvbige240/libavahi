@@ -154,6 +154,13 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char*argv[]) {
     int error;
     int ret = 1;
 
+    char *service_type = NULL;
+
+    if (argc > 1)
+        service_type = avahi_strdup(argv[1]);
+    else
+        service_type = avahi_strdup("_kingserver._tcp");
+
     /* Initialize the psuedo-RNG */
     srand(time(NULL));
 
@@ -190,7 +197,7 @@ int main(AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char*argv[]) {
     }
 
     /* Create the service browser */
-    if (!(sb = avahi_s_service_browser_new(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_INET, "_kingserver._tcp", NULL, 0, browse_callback, server))) {
+    if (!(sb = avahi_s_service_browser_new(server, AVAHI_IF_UNSPEC, AVAHI_PROTO_INET, service_type, NULL, 0, browse_callback, server))) {
         fprintf(stderr, "Failed to create service browser: %s\n", avahi_strerror(avahi_server_errno(server)));
         goto fail;
     }
@@ -211,6 +218,8 @@ fail:
 
     if (simple_poll)
         avahi_simple_poll_free(simple_poll);
+
+    avahi_free(service_type);
 
     return ret;
 }
